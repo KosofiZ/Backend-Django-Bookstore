@@ -1,10 +1,10 @@
 from rest_framework import viewsets
-from .models import ClientUser, Order, Comment, WishList, ShippingInfo, Book, Tag, Category
-from .serializers import ClientUserSerializer, OrderSerializer, CommentSerializer, WishlistSerializer, ShippingInfoSerializer, BookSerializer, TagSerializer, CategorySerializer
+from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post
+from .serializers import *
 
-class ClientUserViewSet(viewsets.ModelViewSet):
-    queryset = ClientUser.objects.all()
-    serializer_class = ClientUserSerializer
+class ClientViewSet(viewsets.ModelViewSet):
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -33,3 +33,8 @@ class TagViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
