@@ -15,11 +15,14 @@ router.register(r'categories', views.CategoryViewSet)
 router.register(r'posts', views.PostViewSet)
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('api/add_to_cart/', views.add_to_cart, name='add_to_cart'),
 
     
 
 ]
+
