@@ -14,10 +14,12 @@ router.register(r'tags', views.TagViewSet)
 router.register(r'categories', views.CategoryViewSet)
 router.register(r'posts', views.PostViewSet)
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
+
     
 
 ]

@@ -1,6 +1,8 @@
+from rest_framework import generics
 from rest_framework import viewsets
 from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post
 from .serializers import *
+from rest_framework import permissions
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -25,6 +27,8 @@ class ShippingInfoViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
+
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
