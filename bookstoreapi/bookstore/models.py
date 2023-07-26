@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 
 
+
 class WishList(models.Model):
     books = models.ManyToManyField("Book", verbose_name=_("Books"), blank=True)
     
@@ -36,12 +37,12 @@ class Client(User):
         blank=True
     )
 
-    def __str__(self):
-       return f"{self.first_name} {self.last_name}"
+    # def __str__(self):
+    #    return f"{self.first_name} {self.last_name}"
        
     
-    # def __str__(self):
-    #     return str(self.username)   
+    def __str__(self):
+         return str(self.username)   
 
 
     def save(self, *args, **kwargs):
@@ -51,6 +52,11 @@ class Client(User):
 
 
 class Category(models.Model):
+
+    class Meta(User.Meta):
+        verbose_name = _("Category")
+        verbose_name_plural = _("Categories")
+
     name = models.CharField(_("Name"), max_length=100, blank=False)
 
     def __str__(self):
