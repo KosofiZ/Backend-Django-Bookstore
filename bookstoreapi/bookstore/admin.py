@@ -46,6 +46,7 @@ class BookAdmin(admin.ModelAdmin):
 
 
 
+
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
 

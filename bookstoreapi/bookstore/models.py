@@ -36,12 +36,12 @@ class Client(User):
         blank=True
     )
 
-
-       #return f"{self.first_name} {self.last_name}"
+    def __str__(self):
+       return f"{self.first_name} {self.last_name}"
        
     
-    def __str__(self):
-        return str(self.username)   
+    # def __str__(self):
+    #     return str(self.username)   
 
 
     def save(self, *args, **kwargs):
