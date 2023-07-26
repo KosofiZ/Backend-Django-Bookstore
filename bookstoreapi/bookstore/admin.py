@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import *
 # Register your models here.
 
-admin.site.register(Order)
+
 
 
 @admin.register(Post)
@@ -58,7 +58,6 @@ class ClientAdmin(admin.ModelAdmin):
 
     list_display = [
         "__str__",
-        #"full_name",
         "username",
         "email",
         "phone",
@@ -98,3 +97,49 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = [
         "__str__",    
     ]
+
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        'user'
+    ]
+
+    fields = [
+        'user',
+        'status',
+        'ShippingInfo',
+        
+        ]
+    
+    filter_horizontal = ['books']  # For ManyToManyField use filter_horizontal instead of fields
+    
+
+    search_fields = ["user", "created_at"]
+
+    list_display = [
+        "__str__",
+        "user",
+        "created_at",
+        "status",
+        "total_amount",
+    ]
+
+    def total_amount(self, obj):
+        # Define a method to calculate and display the total amount for each order
+        return sum(item.price for item in obj.books.all())
+
+
+@admin.register(BookOrder)
+class BookOrderAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "__str__",
+        "book",
+        "quantity",
+    ]
+
+    search_fields = ["book"]
+

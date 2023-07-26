@@ -19,18 +19,17 @@ class WishList(models.Model):
 
 class Client(User):
 
-    # phone_regex = RegexValidator(
-    #     regex=r'^\d{10}$',
-    #     message="Phone number must be exactly 10 digits."
-    # )
-    # put inside phone attribute validators=[phone_regex] 
-
+    phone_regex = RegexValidator(
+        regex=r'^\d{10}$',
+        message="Phone number must be exactly 10 digits."
+    )
+    
     class Meta(User.Meta):
         verbose_name = _("Client")
         verbose_name_plural = _("Clients")
 
 
-    phone = models.CharField(_("Phone"), max_length=10 )
+    phone = models.CharField(_("Phone"), max_length=10, validators=[phone_regex], blank= True  )
     shipping_info = models.OneToOneField(
         'ShippingInfo', verbose_name=_("Shipping Info"), on_delete=models.PROTECT
         , blank=True, null=True
@@ -122,6 +121,7 @@ class Comment(models.Model):
 
 
 class Order(models.Model):
+
     user = models.ForeignKey(Client, verbose_name=_("User"), null=True, on_delete=models.SET_NULL)
     books = models.ManyToManyField(Book, verbose_name=_("Books"), related_name="orders", through="BookOrder")
     created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
@@ -136,19 +136,25 @@ class Order(models.Model):
     )
 
     def __str__(self):
-        return f"Order {self.user}"
+        return f"Order of {self.user}"
     
 
 class BookOrder(models.Model):
-
+     
     class Meta:
         unique_together = (
             "book", "order"
         )
 
+        verbose_name = _("Book order")
+        verbose_name_plural = _("Book order")
+
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     book = models.ForeignKey(Book, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField(_("Quantity"))
+
+    def __str__(self):
+        return f"Order of :{self.book}"
 
     @classmethod
     def filter_by_order(cls, order):
