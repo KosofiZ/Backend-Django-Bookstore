@@ -84,3 +84,17 @@ class ShippingInfoAdmin(admin.ModelAdmin):
         "country",
      
     ]
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "name",
+    ]
+
+    search_fields = ["name"]
+
+    list_display = [
+        "__str__",    
+    ]
