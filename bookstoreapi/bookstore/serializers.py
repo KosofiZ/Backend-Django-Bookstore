@@ -25,14 +25,6 @@ class ClientSerializer(serializers.ModelSerializer):
         ]
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = [ 
-            'id',
-            'books',
-            'created_at',
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -78,6 +70,19 @@ class BookSerializer(serializers.ModelSerializer):
             'quantity',
             'price',
         ]
+        
+class OrderSerializer(serializers.ModelSerializer):
+
+    books = BookSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [ 
+            'id',
+            'books',
+            'created_at',
+        ]
+
 
 
 class TagSerializer(serializers.ModelSerializer):
