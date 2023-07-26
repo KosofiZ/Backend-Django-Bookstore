@@ -4,14 +4,17 @@ from django.contrib.auth.models import User, Group
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 
+from bookstore import settings as bookstore_settings
+
 
 
 class WishList(models.Model):
     books = models.ManyToManyField("Book", verbose_name=_("Books"), blank=True)
     
-
     def __str__(self):
-        return self.id
+        if getattr(self, 'user', None):
+            return f"{self.user} wishlist"
+        return f"Wishlist {self.id}"
     
 
 class Client(User):
@@ -81,7 +84,8 @@ class Book(models.Model):
     categories = models.ManyToManyField(Category, verbose_name=("Categories"), related_name="books", blank=True)
     tags = models.ManyToManyField(Tag, verbose_name=_("Tags"), related_name="books", blank=True)
     image_url = models.CharField(_("imageUrl"), max_length=200, blank=True, null =True)
-    rating = models.FloatField(default=0.0)  
+    image = models.ImageField(_("Image"), upload_to="books/images", null=True, blank=True)
+    rating = models.DecimalField(_("Rating"), max_digits=2, decimal_places=1, default=0.0, blank=True)
 
     def __str__(self):
         return self.title
@@ -115,12 +119,16 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.book} - {self.rating}"
-    
+
 
 class Order(models.Model):
     user = models.ForeignKey(Client, verbose_name=_("User"), null=True, on_delete=models.SET_NULL)
-    books = models.ManyToManyField(Book, verbose_name=_("Books"), related_name="orders")
+    books = models.ManyToManyField(Book, verbose_name=_("Books"), related_name="orders", through="BookOrder")
     created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
+    status = models.CharField(
+        _("Status"), choices=bookstore_settings.ORDER_STATUS_CHOICES,
+        default="pending", max_length=32
+    )
     ShippingInfo = models.OneToOneField(
         ShippingInfo,
         verbose_name=_("ShippingInfo"),
@@ -129,6 +137,30 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.user}"
+    
+
+class BookOrder(models.Model):
+
+    class Meta:
+        unique_together = (
+            "book", "order"
+        )
+
+    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    book = models.ForeignKey(Book, on_delete=models.PROTECT)
+    quantity = models.PositiveSmallIntegerField(_("Quantity"))
+
+    @classmethod
+    def filter_by_order(cls, order):
+        return BookOrder.objects.filter(order=order)
+    
+    @classmethod
+    def get_books_per_order(cls, order):
+        book_ids = BookOrder.objects.filter(order=order).values_list('book__id', flat=True)
+        return Book.objects.filter(
+            id__in=book_ids
+        )
+    
     
 
 class Post(models.Model):
