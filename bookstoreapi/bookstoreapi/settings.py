@@ -146,6 +146,13 @@ JAZZMIN_SETTINGS = {
 
     "search_model": ["auth.User"],
 
+    # Whether to display the side menu
+    "show_sidebar": True,
+
+    # Whether to aut expand the menu
+    "navigation_expanded": True,
+
+
     
       # Links to put along the top menu
     "topmenu_links": [
