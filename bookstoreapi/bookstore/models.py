@@ -54,13 +54,13 @@ class Client(User):
 class Category(models.Model):
 
     class Meta(User.Meta):
-        verbose_name = _("Category")
-        verbose_name_plural = _("Categories")
+            verbose_name = _("Category")
+            verbose_name_plural = _("Categories")
 
     name = models.CharField(_("Name"), max_length=100, blank=False)
 
     def __str__(self):
-        return self.name
+            return self.name
 
 
 class Tag(models.Model):
@@ -80,7 +80,8 @@ class Book(models.Model):
     book_available = models.BooleanField(default=True)
     categories = models.ManyToManyField(Category, verbose_name=("Categories"), related_name="books", blank=True)
     tags = models.ManyToManyField(Tag, verbose_name=_("Tags"), related_name="books", blank=True)
-    image_url = models.CharField(_("imageUrl"), max_length=200, blank=True, null =True) 
+    image_url = models.CharField(_("imageUrl"), max_length=200, blank=True, null =True)
+    rating = models.FloatField(default=0.0)  
 
     def __str__(self):
         return self.title
