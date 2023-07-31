@@ -85,6 +85,8 @@ class Book(models.Model):
     image_url = models.CharField(_("imageUrl"), max_length=200, blank=True, null =True)
     image = models.ImageField(_("Image"), upload_to="books/images", null=True, blank=True)
     rating = models.DecimalField(_("Rating"), max_digits=2, decimal_places=1, default=0.0, blank=True)
+    year_published = models.CharField(_("Year of publication"), max_length=4,blank =True)
+    pages = models.CharField(_("Pages"), max_length=5, blank=True)
 
     def __str__(self):
         return self.title
@@ -99,6 +101,7 @@ class ShippingInfo(models.Model):
         verbose_name = _("Shipping information")
         verbose_name_plural = _("Shipping information")
 
+    order = models.ForeignKey("Order", on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(_("Name"), max_length=50, default="", blank=True)
     address = models.CharField(_("Address"), max_length=255, blank=False)
     city = models.CharField(_("City"), max_length=100, blank=False)
@@ -120,19 +123,24 @@ class Comment(models.Model):
         return f"{self.user} - {self.book} - {self.rating}"
 
 
+class Cart(models.Model):
+
+    user = models.OneToOneField(Client, verbose_name=_("User"), null=True, default="", on_delete=models.SET_NULL)
+    books = models.ManyToManyField(Book, verbose_name=_("Books"))
+    created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
+
+    def __str__(self):
+        return f"Cart of {self.user}"
+
+
 class Order(models.Model):
 
-    user = models.ForeignKey(Client, verbose_name=_("User"), null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(Client, verbose_name=_("User"), on_delete=models.PROTECT)
     books = models.ManyToManyField(Book, verbose_name=_("Books"), related_name="orders", through="BookOrder")
     created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
     status = models.CharField(
         _("Status"), choices=bookstore_settings.ORDER_STATUS_CHOICES,
         default="pending", max_length=32
-    )
-    ShippingInfo = models.OneToOneField(
-        ShippingInfo,
-        verbose_name=_("ShippingInfo"),
-        on_delete=models.PROTECT,
     )
 
     def __str__(self):
