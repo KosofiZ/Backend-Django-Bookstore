@@ -73,16 +73,19 @@ class BookSerializer(serializers.ModelSerializer):
         
 class OrderSerializer(serializers.ModelSerializer):
 
-    books = BookSerializer(many=True, read_only=True)
+    #books = BookSerializer(many=True, read_only=True)
+
+    books = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = [ 
-            'id',
-            'books',
-            'created_at',
-        ]
+        # fields = [ 
+        #     'id',
+        #     'books',
+        #     'created_at',
+        # ]
 
+        fields = '__all__'
 
 
 class TagSerializer(serializers.ModelSerializer):
