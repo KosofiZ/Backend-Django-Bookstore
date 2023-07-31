@@ -1,8 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework import viewsets
 from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, BookOrder
 from .serializers import *
-from django.http import JsonResponse
+from django.http import  JsonResponse
 
 
 #######################################################
@@ -16,6 +17,16 @@ from rest_framework.permissions import IsAuthenticated
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+
+
+class BookDetail(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+def get_object (self, queryset=None ,**kwargs):
+    item = self.kwargs.get('pk')
+    return get_object_or_404(Book, title =item)
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -51,15 +62,16 @@ class ShippingInfoViewSet(viewsets.ModelViewSet):
     queryset = ShippingInfo.objects.all()
     serializer_class = ShippingInfoSerializer
 
+
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
 
-
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -69,6 +81,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+
+
+class CartViewSet(viewsets.ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
 
 
 
