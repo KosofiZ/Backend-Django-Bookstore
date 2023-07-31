@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('api/add_to_cart/', views.add_to_cart, name='add_to_cart'),
+    # path('api/books/<int:book_id>/', views.get_book_detail, name='get_book_detail'),
 
     
 
