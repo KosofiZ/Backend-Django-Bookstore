@@ -1,7 +1,25 @@
 from rest_framework import serializers
-from bookstore.models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post
+from bookstore.models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, Cart
 from django.contrib.auth.models import User
 
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = [ 
+            'id',
+            'name',
+        ]
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [ 
+            'id',
+            'name',
+        ]
+        
 
 class UserExcerptSerializer(serializers.ModelSerializer):
 
@@ -60,16 +78,28 @@ class ShippingInfoSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
+
+    serialized_tags = TagSerializer(many=True, source="tags")
+
     class Meta:
         model = Book
         fields = [ 
             'id',
             'title',
-            'image_url',
             'author',
+            'editor',
+            'description',
+            'image_url',
             'quantity',
             'price',
+            'year_published',
+            'rating',
+            'tags',
+            'serialized_tags',
+            'pages',
         ]
+
+
         
 class OrderSerializer(serializers.ModelSerializer):
 
@@ -87,29 +117,22 @@ class OrderSerializer(serializers.ModelSerializer):
 
         fields = '__all__'
 
+class CartSerializer(serializers.ModelSerializer):
 
-class TagSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tag
+        model = Cart
+
         fields = [ 
             'id',
-            'name',
+            'books',
+            'created_at',
         ]
 
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = [ 
-            'id',
-            'name',
-        ]
-        
 
 class PostSerializer(serializers.ModelSerializer):
 
-    # user_data = UserExcerptSerializer(source="user")
-    user_data = serializers.SerializerMethodField()
+    user_data = UserExcerptSerializer(source="user")
+    #user_data = serializers.SerializerMethodField()
     
     class Meta:
         model = Post
