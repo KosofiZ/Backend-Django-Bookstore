@@ -151,7 +151,7 @@ class BookOrder(models.Model):
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     book = models.ForeignKey(Book, on_delete=models.PROTECT)
-    quantity = models.PositiveSmallIntegerField(_("Quantity"))
+    quantity = models.PositiveSmallIntegerField(_("Quantity"), null=False)
 
     def __str__(self):
         return f"Order of :{self.book}"

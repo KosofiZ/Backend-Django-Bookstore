@@ -112,6 +112,7 @@ class OrderAdmin(admin.ModelAdmin):
         'status',
         'ShippingInfo',
         
+        
         ]
     
     filter_horizontal = ['books']  # For ManyToManyField use filter_horizontal instead of fields
