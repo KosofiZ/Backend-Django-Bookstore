@@ -1,10 +1,8 @@
 from django.contrib import admin
 from .models import *
 # Register your models here.
-
-
-
-
+ 
+ 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
 
@@ -26,7 +24,6 @@ class PostAdmin(admin.ModelAdmin):
          return instance.published_at is not None
     
 
-
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
 
@@ -43,8 +40,6 @@ class BookAdmin(admin.ModelAdmin):
         "price",
         "book_available",
     ]
-
-
 
 
 @admin.register(Client)
@@ -98,6 +93,33 @@ class CategoryAdmin(admin.ModelAdmin):
         "__str__",    
     ]
 
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "name",
+    ]
+
+    search_fields = ["name"]
+
+    list_display = [
+        "__str__",    
+    ]
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "user",
+    ]
+
+    search_fields = ["user"]
+
+    list_display = [
+        "__str__",    
+    ]
 
 
 @admin.register(Order)
