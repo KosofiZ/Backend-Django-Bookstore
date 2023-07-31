@@ -1,7 +1,8 @@
 from rest_framework import generics
 from rest_framework import viewsets
-from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post
+from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, BookOrder
 from .serializers import *
+from django.http import JsonResponse
 
 
 #######################################################
@@ -19,6 +20,24 @@ class ClientViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+
+def add_to_cart(request):
+    if request.method == 'POST':
+        book_id = request.POST.get('book_id')
+        
+        
+        
+        try:
+            book = Book.objects.get(pk=book_id)
+            order, created = Order.objects.get_or_create( status='pending')
+            BookOrder.objects.create(order=order, book=book, quantity=1)
+            return JsonResponse({'message': 'Book added to cart successfully.'})
+        except Book.DoesNotExist:
+            return JsonResponse({'error': 'Book not found.'}, status=404)
+        
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
@@ -52,17 +71,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
 
-@api_view(['POST'])
-def add_to_cart(request):
-    book_id = request.data.get('book_id')
-    try:
-        book = Book.objects.get(pk=book_id)
-    except Book.DoesNotExist:
-        return Response({"message": "Book not found."}, status=404)
 
-    order, _ = Order.objects.get_or_create(user=request.user)
-    order.books.add(book)
-    order.save()
 
-    serializer = OrderSerializer(order)
-    return Response(serializer.data, status=200)
+
+
