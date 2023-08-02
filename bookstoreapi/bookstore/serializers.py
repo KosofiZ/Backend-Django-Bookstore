@@ -43,8 +43,6 @@ class ClientSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
 class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -80,7 +78,7 @@ class ShippingInfoSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
 
     serialized_tags = TagSerializer(many=True, source="tags")
-
+    
     class Meta:
         model = Book
         fields = [ 
@@ -103,9 +101,9 @@ class BookSerializer(serializers.ModelSerializer):
         
 class OrderSerializer(serializers.ModelSerializer):
 
-    #books = BookSerializer(many=True, read_only=True)
+    books = BookSerializer(many=True, read_only=True)
 
-    books = serializers.SerializerMethodField()
+    #books = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -124,6 +122,7 @@ class CartSerializer(serializers.ModelSerializer):
 
         fields = [ 
             'id',
+            'user',
             'books',
             'created_at',
         ]
