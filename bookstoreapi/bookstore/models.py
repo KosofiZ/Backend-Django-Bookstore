@@ -125,32 +125,13 @@ class Comment(models.Model):
 
 class Cart(models.Model):
 
-    user = models.OneToOneField(Client, verbose_name=_("User"), null=True, default="", on_delete=models.SET_NULL)
+    user = models.OneToOneField(Client, verbose_name=_("User"), null=True,  default="", on_delete=models.SET_NULL)
     books = models.ManyToManyField(Book, verbose_name=_("Books"), blank= True)
     created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
 
     def __str__(self):
         return f"Cart of {self.user}"
     
-
-    def add(self, book_id, quantity=1, update_quantity=False):
-        book_id = str(book_id)
-
-        if book_id not in self.cart:
-            self.cart[book_id] = {'quantity': 1, 'id': book_id}
-        
-        if update_quantity:
-            self.cart[book_id]['quantity'] += int(quantity)
-
-            if self.cart[book_id]['quantity'] == 0:
-                self.remove(book_id)
-            
-        self.save()
-    
-    def remove(self, book_id):
-        if book_id in self.cart:
-            del self.cart[book_id]
-            self.save()
 
 
 class Order(models.Model):
