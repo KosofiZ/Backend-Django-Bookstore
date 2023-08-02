@@ -9,9 +9,10 @@ from django.http import  JsonResponse
 #######################################################
 
 
-from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+
 
 
 class ClientViewSet(viewsets.ModelViewSet):
@@ -31,24 +32,6 @@ def get_object (self, queryset=None ,**kwargs):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-
-
-def add_to_cart(request):
-    if request.method == 'POST':
-        book_id = request.POST.get('book_id')
-        
-        
-        
-        try:
-            book = Book.objects.get(pk=book_id)
-            order, created = Order.objects.get_or_create( status='pending')
-            BookOrder.objects.create(order=order, book=book, quantity=1)
-            return JsonResponse({'message': 'Book added to cart successfully.'})
-        except Book.DoesNotExist:
-            return JsonResponse({'error': 'Book not found.'}, status=404)
-        
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
@@ -87,6 +70,22 @@ class PostViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+
+    
+@login_required
+@api_view(['POST'])
+def add_to_cart(request, book_id):
+    try:
+        book = Book.objects.get(pk=book_id)
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        book.cart = cart
+        book.save()
+        return Response({"message": "Book added to cart successfully"})
+    except Book.DoesNotExist:
+        return Response({"message": "Book not found"}, status=404)
+    except Cart.DoesNotExist:
+        return Response({"message": "Cart not found"}, status=404)
+
 
 
 
