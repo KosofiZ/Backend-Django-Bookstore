@@ -20,13 +20,14 @@ router.register(r'cart', views.CartViewSet)
 
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('i18n/', include('django.conf.urls.i18n')),
     # path('api/add_to_cart/', views.add_to_cart, name='add_to_cart'),
     # path('api/books/<int:book_id>/', views.get_book_detail, name='get_book_detail'),
-    path('api/books/<int:book_id>/add-to-cart/', add_to_cart, name='add-to-cart'),
+    path('api/add_to_cart/<int:book_id>/', add_to_cart, name='add_to_cart'),
    
 
     

@@ -71,22 +71,42 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
-    
-@login_required
-@api_view(['POST'])
-def add_to_cart(request, book_id):
+
+
+
+""" def add_to_cart(request, book_id):
     try:
-        book = Book.objects.get(pk=book_id)
-        cart, _ = Cart.objects.get_or_create(user=request.user)
-        book.cart = cart
-        book.save()
+        Cart.user = User(Client)
+        books = Book.objects.get(pk=book_id)
+        cart = Cart.objects.create(user= request.user, books=books)
+        cart.save()
         return Response({"message": "Book added to cart successfully"})
     except Book.DoesNotExist:
         return Response({"message": "Book not found"}, status=404)
     except Cart.DoesNotExist:
-        return Response({"message": "Cart not found"}, status=404)
+        return Response({"message": "Cart not found"}, status=404) """
 
+def add_to_cart(request):
+    if request.method == 'POST':
+            book_id = int(request.POST.get('bookId'))
+            book_check = Book.objects.get(id = book_id)
+            if(book_check):
+                if(Cart.objects.filter(user = request.user.id, bookId = book_id)):
+                    return JsonResponse({'status':"Book Already in Cart"})
+                else:
+                    book_qty = int(request.POST.get('bookQty'))
 
+                    if book_check.quantity >= book_qty : 
+                        Cart.objects.create(user = request.user, bookId= book_id, bookQty = book_qty)
+                        return JsonResponse({'status': "Book added succesfully"})
+                    
+                    else:
+                        return JsonResponse({'status':"Only" + str(book_check.quantity) + "quantity available"})
+            else:
+                return JsonResponse({'status': "No such book found"})
+        
+    
+    
 
 
 
