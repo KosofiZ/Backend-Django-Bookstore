@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from .models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, BookOrder
 from .serializers import *
 from django.http import  JsonResponse
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, DjangoModelPermissionsOrAnonReadOnly
 
 
 #######################################################
@@ -12,6 +13,7 @@ from django.http import  JsonResponse
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -68,6 +70,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CartViewSet(viewsets.ModelViewSet):
+    #permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
@@ -86,9 +89,37 @@ class CartViewSet(viewsets.ModelViewSet):
     except Cart.DoesNotExist:
         return Response({"message": "Cart not found"}, status=404) """
 
+
+@csrf_exempt
+@api_view(['POST'])
 def add_to_cart(request):
     if request.method == 'POST':
-            book_id = int(request.POST.get('bookId'))
+            book_id = request.POST.get('bookId')
+            if book_id is None:
+             return Response({'status': "Book ID not provided."}, status=400)
+            else:
+            
+             try:
+                book = Book.objects.get(id=book_id)
+             except Book.DoesNotExist:
+                return Response({'status': "No such book found."}, status=400)
+             
+            user = request.user
+             
+            cart_item = Cart.objects.get_or_create(user= user)
+            cart_item.books.add(book)
+            cart_item.save()
+    return Response({'status': 'Book added to cart successfully'})
+
+
+
+    
+"""     if request.method == 'POST':
+            book_id = request.POST.get('bookId')
+            if book_id is None:
+             return Response({'status': "Book ID not provided."}, status=400)
+            
+            book_id = int(book_id)
             book_check = Book.objects.get(id = book_id)
             if(book_check):
                 if(Cart.objects.filter(user = request.user.id, bookId = book_id)):
@@ -104,6 +135,12 @@ def add_to_cart(request):
                         return JsonResponse({'status':"Only" + str(book_check.quantity) + "quantity available"})
             else:
                 return JsonResponse({'status': "No such book found"})
+    
+    return Response({'status': 'Book added to cart successfully'})
+ """
+
+
+
         
     
     
