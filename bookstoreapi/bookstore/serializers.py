@@ -127,6 +127,8 @@ class CartSerializer(serializers.ModelSerializer):
             'created_at',
         ]
 
+        extra_kwargs  = {  "created_at": {"format": "%Y/%d/%m %H:%M"}  }
+
 
 class PostSerializer(serializers.ModelSerializer):
 
