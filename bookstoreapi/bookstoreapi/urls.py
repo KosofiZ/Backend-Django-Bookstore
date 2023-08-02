@@ -4,11 +4,18 @@ from django.contrib import admin
 from bookstore import views
 from bookstore.views import add_to_cart
 from django.contrib.auth import views as auth_views
-# ---------------------     ---------------------
+#---------------------     ---------------------
+
+from django.conf.urls.static import static
+from django.conf import settings
+
+#---------------------     ---------------------
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+
+
 
 router = routers.DefaultRouter()
 router.register(r'client-users', views.ClientViewSet)
@@ -24,12 +31,6 @@ router.register(r'cart', views.CartViewSet)
 router.register(r'add_to_cart', views.CartViewSet)
 
 
-
-
-
-
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
@@ -38,10 +39,8 @@ urlpatterns = [
     # path('api/books/<int:book_id>/', views.get_book_detail, name='get_book_detail'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-   
-
     
-
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
 
