@@ -83,7 +83,7 @@ class Book(models.Model):
     categories = models.ManyToManyField(Category, verbose_name=("Categories"), related_name="books", blank=True)
     tags = models.ManyToManyField(Tag, verbose_name=_("Tags"), related_name="books", blank=True)
     image_url = models.CharField(_("imageUrl"), max_length=200, blank=True, null =True)
-    image = models.ImageField(_("Image"), upload_to="books/images", null=True, blank=True)
+    image = models.ImageField(_("Image"), upload_to="bookstoreapi/books/images", null=True, blank=True)
     rating = models.DecimalField(_("Rating"), max_digits=2, decimal_places=1, default=0.0, blank=True)
     year_published = models.CharField(_("Year of publication"), max_length=4,blank =True)
     pages = models.CharField(_("Pages"), max_length=5, blank=True)
@@ -94,7 +94,15 @@ class Book(models.Model):
     def save(self, *args, **kwargs):
         self.book_available = self.quantity > 0
         super(Book, self).save(*args, **kwargs)
-
+ 
+"""     
+     @property
+    def get_image_url(self) -> str:
+      if self.image_file and hasattr(self.image_file, 'url'):
+         return f"http://localhost:8000{self.image_file.url}"
+          
+ """
+ 
 class ShippingInfo(models.Model):
 
     class Meta:
