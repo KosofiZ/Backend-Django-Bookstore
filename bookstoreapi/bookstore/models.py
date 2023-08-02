@@ -126,7 +126,7 @@ class Comment(models.Model):
 class Cart(models.Model):
 
     user = models.OneToOneField(Client, verbose_name=_("User"), null=True, default="", on_delete=models.SET_NULL)
-    books = models.ManyToManyField(Book, verbose_name=_("Books"))
+    books = models.ManyToManyField(Book, verbose_name=_("Books"), blank= True)
     created_at = models.DateTimeField(_("Created_at"),auto_now_add=True)
 
     def __str__(self):
