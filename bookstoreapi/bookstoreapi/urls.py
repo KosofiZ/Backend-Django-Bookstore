@@ -2,7 +2,6 @@ from django.urls import path, include
 from rest_framework import routers
 from django.contrib import admin
 from bookstore import views
-from bookstore.views import add_to_cart
 from django.contrib.auth import views as auth_views
 #---------------------     ---------------------
 
@@ -28,7 +27,6 @@ router.register(r'tags', views.TagViewSet)
 router.register(r'categories', views.CategoryViewSet)
 router.register(r'posts', views.PostViewSet)
 router.register(r'cart', views.CartViewSet)
-router.register(r'add_to_cart', views.CartViewSet)
 
 
 urlpatterns = [
