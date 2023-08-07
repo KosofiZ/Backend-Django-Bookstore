@@ -107,13 +107,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        # fields = [ 
-        #     'id',
-        #     'books',
-        #     'created_at',
-        # ]
+        fields = [ 
+            'id',
+            'books',
+            'created_at',
+            'ShippingInfo',
+        ]
 
-        fields = '__all__'
+        #fields = '__all__'
 
 class CartSerializer(serializers.ModelSerializer):
 

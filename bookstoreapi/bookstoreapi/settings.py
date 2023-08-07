@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "bookstore",
     "colorfield",
     "corsheaders",
+    "djoser",
 ]
 
 MIDDLEWARE = [
@@ -53,7 +54,7 @@ ROOT_URLCONF = "bookstoreapi.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'build')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -145,6 +146,7 @@ REST_FRAMEWORK = {
     )
 }
 
+# AUTH_USER_MODEL = 'bookstore.Client'
 
 #----------------------------   JAZZMIN SETTINGS -----------------------------
 
