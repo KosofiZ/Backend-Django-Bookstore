@@ -139,14 +139,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny'
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
     ],
      'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 
-# AUTH_USER_MODEL = 'bookstore.Client'
+AUTH_USER_MODEL = 'bookstore.Client'
 
 #----------------------------   JAZZMIN SETTINGS -----------------------------
 
