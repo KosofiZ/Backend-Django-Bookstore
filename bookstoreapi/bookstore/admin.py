@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import *
-# Register your models here.
+from bookstore.models import *
+
  
  
 @admin.register(Post)
@@ -46,14 +46,14 @@ class BookAdmin(admin.ModelAdmin):
 class ClientAdmin(admin.ModelAdmin):
 
     list_filter = [
-        "username", 
+        "first_name", 
     ]
 
-    search_fields = ["username", "first_name", "last_name"]
+    search_fields = ["first_name", "last_name"]
 
     list_display = [
         "__str__",
-        "username",
+        "first_name",
         "email",
         "phone",
         
@@ -126,20 +126,17 @@ class CartAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
 
     list_filter = [
-        'user'
+        "user"
     ]
 
     fields = [
-        'user',
-        'status',
-        'ShippingInfo',
-        
-        
-        ]
+        "user",
+        "status",
+        "shipping_info",
+    ]
+     
+    filter_horizontal = ["books"]  # For ManyToManyField use filter_horizontal instead of fields
     
-    filter_horizontal = ['books']  # For ManyToManyField use filter_horizontal instead of fields
-    
-
     search_fields = ["user", "created_at"]
 
     list_display = [
@@ -149,6 +146,7 @@ class OrderAdmin(admin.ModelAdmin):
         "status",
         "total_amount",
     ]
+
 
     def total_amount(self, obj):
         # Define a method to calculate and display the total amount for each order
