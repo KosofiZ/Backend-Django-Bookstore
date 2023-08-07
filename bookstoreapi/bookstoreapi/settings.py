@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
     )
 }
 
-AUTH_USER_MODEL = 'bookstore.Client'
+# AUTH_USER_MODEL = 'bookstore.Client'
 
 #----------------------------   JAZZMIN SETTINGS -----------------------------
 
