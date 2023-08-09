@@ -1,8 +1,14 @@
 
 from pathlib import Path
+import os
+
+from datetime import timedelta
+from rest_framework.settings import api_settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = ''
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,6 +38,7 @@ INSTALLED_APPS = [
     "bookstore",
     "colorfield",
     "corsheaders",
+    "knox",
 ]
 
 MIDDLEWARE = [
@@ -50,7 +57,7 @@ ROOT_URLCONF = "bookstoreapi.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'build')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -133,18 +140,49 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    # ],
+     'DEFAULT_AUTHENTICATION_CLASSES':('knox.auth.TokenAuthentication',),
+}
+
+#------------------------------- KNOX SETTINGS -------------------------------
+
+REST_KNOX = {
+    'SECURE_HASH_ALGORITHM':'cryptography.hazmat.primitives.hashes.SHA512',
+    'AUTH_TOKEN_CHARACTER_LENGTH': 64, 
+    'TOKEN_TTL': timedelta(minutes=45), 
+    'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+    'TOKEN_LIMIT_PER_USER': None,
+    'AUTO_REFRESH': False, 
+    'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+}
+
+
+# AUTH_USER_MODEL = 'bookstore.Client'
+
+
+
 
 #----------------------------   JAZZMIN SETTINGS -----------------------------
 
 JAZZMIN_SETTINGS = {
     "site_title": "Bookstore",
-    "site_brand": "BOOKSTORE Admin Panel",
+    "site_brand": "Bookstore Admin Panel",
     #"site_logo": "images/logo-bookstore2.png",
     "login_logo": None,
     "welcome_sign": "Welcome to the Bookstore Admin Interface",
     "copyright": "Bookstore",
 
     "search_model": ["auth.User"],
+
+    # Whether to display the side menu
+    "show_sidebar": True,
+
+    # Whether to aut expand the menu
+    "navigation_expanded": True,
+
 
     
       # Links to put along the top menu
