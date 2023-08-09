@@ -1,10 +1,8 @@
 from django.contrib import admin
-from .models import *
-# Register your models here.
+from bookstore.models import *
 
-admin.site.register(Order)
-
-
+ 
+ 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
 
@@ -26,7 +24,6 @@ class PostAdmin(admin.ModelAdmin):
          return instance.published_at is not None
     
 
-
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
 
@@ -45,20 +42,18 @@ class BookAdmin(admin.ModelAdmin):
     ]
 
 
-
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
 
     list_filter = [
-        "username", 
+        "first_name", 
     ]
 
-    search_fields = ["username", "first_name", "last_name"]
+    search_fields = ["first_name", "last_name"]
 
     list_display = [
         "__str__",
-        #"full_name",
-        "username",
+        "first_name",
         "email",
         "phone",
         
@@ -83,3 +78,89 @@ class ShippingInfoAdmin(admin.ModelAdmin):
         "country",
      
     ]
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "name",
+    ]
+
+    search_fields = ["name"]
+
+    list_display = [
+        "__str__",    
+    ]
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "name",
+    ]
+
+    search_fields = ["name"]
+
+    list_display = [
+        "__str__",    
+    ]
+
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "user",
+    ]
+
+    search_fields = ["user"]
+
+    list_display = [
+        "__str__",    
+    ]
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+
+    list_filter = [
+        "user"
+    ]
+
+    fields = [
+        "user",
+        "status",
+        "shipping_info",
+    ]
+     
+    filter_horizontal = ["books"]  # For ManyToManyField use filter_horizontal instead of fields
+    
+    search_fields = ["user", "created_at"]
+
+    list_display = [
+        "__str__",
+        "user",
+        "created_at",
+        "status",
+        "total_amount",
+    ]
+
+
+    def total_amount(self, obj):
+        # Define a method to calculate and display the total amount for each order
+        return sum(item.price for item in obj.books.all())
+
+
+@admin.register(BookOrder)
+class BookOrderAdmin(admin.ModelAdmin):
+
+    list_display = [
+        "__str__",
+        "book",
+        "quantity",
+    ]
+
+    search_fields = ["book"]
+

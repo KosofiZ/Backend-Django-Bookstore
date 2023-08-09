@@ -1,23 +1,29 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework import routers
 from django.contrib import admin
-from bookstore import views
+from django.contrib.auth import views as auth_views
 
-router = routers.DefaultRouter()
-router.register(r'client-users', views.ClientViewSet)
-router.register(r'orders', views.OrderViewSet)
-router.register(r'comments', views.CommentViewSet)
-router.register(r'wishlists', views.WishlistViewSet)
-router.register(r'shipping-infos', views.ShippingInfoViewSet)
-router.register(r'books', views.BookViewSet)
-router.register(r'tags', views.TagViewSet)
-router.register(r'categories', views.CategoryViewSet)
-router.register(r'posts', views.PostViewSet)
+from knox.views import LogoutView, LogoutAllView
+from knox import views as knox_views
+#---------------------     ---------------------
+
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace ='rest_framework')),
     path('i18n/', include('django.conf.urls.i18n')),
-    
+    path('', include('bookstore.urls')),
+    path('logout/', LogoutView.as_view()),
+    path('logout-all/', LogoutAllView.as_view()),
+    path('api/auth/', include('knox.urls'))
+
 
 ]
+
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
+
