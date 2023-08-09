@@ -1,28 +1,96 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from bookstore.models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, BookOrder
 from bookstore.serializers import *
-from django.http import  JsonResponse
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, DjangoModelPermissionsOrAnonReadOnly
 
 
 #######################################################
 
-
-from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
+from knox import views as knox_views
+from knox.models import AuthToken
+from django.contrib.auth import login, logout
+# from rest_framework.generics import CreateAPIView, UpdateAPIView
+from rest_framework.viewsets import ViewSetMixin  
 
+
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserExcerptSerializer
 
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
+
+# class CreateUserAPI(CreateAPIView):
+#     queryset = Client.objects.all()
+#     serializer_class = CreateUserSerializer
+#     permission_classes = (AllowAny,)
+
+class RegistrationAPI(generics.GenericAPIView):
+    serializer_class = CreateUserSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "user": UserExcerptSerializer(user, context=self.get_serializer_context()).data            
+        })
+    
+class LoginAPI(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        return Response({
+            "user": UserExcerptSerializer(user, context=self.get_serializer_context()).data,
+            "token": AuthToken.objects.create(user)[1]
+        })
+
+
+# class UpdateUserAPI(UpdateAPIView):
+#     queryset = Client.objects.all()
+#     serializer_class = UpdateUserSerializer
+
+
+class AuthenticationViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (AllowAny, )
+    queryset = Client.objects.all()
+    serializer_class = LoginSerializer
+
+    
+
+    @action(detail=False, methods=["POST"])
+    def login(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data['user']
+            login(request, user)
+            response = super().post(request, format=None)
+        else:
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(response.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=["POST"])
+    def logout(self, request):
+         if request.user.is_authenticated:
+            logout(request)
+            return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+         else:
+            return Response({'message': 'User is not authenticated.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class BookDetail(generics.RetrieveAPIView):
     queryset = Book.objects.all()
@@ -94,43 +162,3 @@ class CartViewSet(viewsets.ModelViewSet):
         cart_item, created = Cart.objects.get_or_create(user=user)
         cart_item.books.add(book)
         return Response({'status': 'Book added to cart successfully'})
-
-""" 
-@csrf_exempt
-@api_view(['POST'])
-def add_to_cart(request):
-    if request.method == 'POST':
-            book_id = request.POST.get('bookId')
-            if book_id is None:
-             return Response({'status': "Book ID not provided."}, status=400)
-            
-            book_id = int(book_id)
-            book_check = Book.objects.get(id = book_id)
-            if(book_check):
-                if(Cart.objects.filter(user = request.user.id, bookId = book_id)):
-                    return JsonResponse({'status':"Book Already in Cart"})
-                else:
-                    book_qty = int(request.POST.get('bookQty'))
-
-                    if book_check.quantity >= book_qty : 
-                        Cart.objects.create(user = request.user, bookId= book_id, bookQty = book_qty)
-                        return JsonResponse({'status': "Book added succesfully"})
-                    
-                    else:
-                        return JsonResponse({'status':"Only" + str(book_check.quantity) + "quantity available"})
-            else:
-                return JsonResponse({'status': "No such book found"})
-    
-    return Response({'status': 'Book added to cart successfully'})
- """
-
-
-
-        
-    
-    
-
-
-
-
-
