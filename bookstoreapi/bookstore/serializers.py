@@ -1,6 +1,8 @@
 from rest_framework import serializers
+
 from bookstore.models import Client, Order, Comment, WishList, ShippingInfo, Book, Tag, Category, Post, Cart
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -30,6 +32,7 @@ class UserExcerptSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "username",
+            "email",
         ]
 
 
@@ -40,7 +43,79 @@ class ClientSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
+            'first_name',
+            'last_name',
         ]
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = ('id', 'username', 'email', 'password')
+        extra_kwargs = {
+            'password': {'required': True}
+        }
+
+    def validate(self, attrs):
+        validated_data = super().validate(attrs)
+        email = validated_data.get('email', '')
+        if Client.objects.filter(email=email).exists():
+            raise serializers.ValidationError({
+                "email": 'User with this email already exists.'
+            })
+        return validated_data
+
+    def create(self, validated_data):
+        user = Client.objects.create_user(**validated_data)
+        return user
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = ('first_name', 'last_name', 'email',  'password')
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password')
+        if password:
+            instance.set_password(password)
+        instance = super().update(instance, validated_data)
+        return instance
+
+
+# class LoginSerializer(serializers.Serializer):
+#     email = serializers.EmailField()
+#     password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False)
+
+#     def validate(self, attrs):
+#         email = attrs.get('email').lower()
+#         password = attrs.get('password')
+
+#         if not email or not password:
+#             raise serializers.ValidationError("Please give both email and password.")
+
+#         if not Client.objects.filter(email=email).exists():
+#             raise serializers.ValidationError('Email does not exist.')
+
+#         user = authenticate(request=self.context.get('request'), email=email,
+#                             password=password)
+#         if not user:
+#             raise serializers.ValidationError("Wrong Credentials.")
+
+#         attrs['user'] = user
+#         return attrs
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Invalid Details.")
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
