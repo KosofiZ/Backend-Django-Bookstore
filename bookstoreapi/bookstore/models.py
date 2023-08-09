@@ -1,11 +1,12 @@
 from datetime import timezone
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, User
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from django.conf import settings
 
 from bookstore import settings as bookstore_settings
+
 
 
 class WishList(models.Model):
@@ -16,6 +17,9 @@ class WishList(models.Model):
             return f"{self.user} wishlist"
         return f"Wishlist {self.id}"
     
+
+
+
 
 # class CustomAccountManager(BaseUserManager):
 
@@ -45,72 +49,23 @@ class WishList(models.Model):
 #         user.set_password(password)
 #         user.save()
 #         return user
-
-###  I need to change this  to Django knox and keep inheritance to User 
     
 
-
-class Client(User):
-
-    phone_regex = RegexValidator(
-        regex=r'^\d{10}$',
-        message="Phone number must be exactly 10 digits."
-    )
-    
-    # class Meta(AbstractBaseUser.Meta):
-    #     verbose_name = _("Client")
-    #     verbose_name_plural = _("Clients")
-
-      
-    email = models.EmailField( _("email"), unique=True)
-    user_name = models.CharField(_("user_name"),max_length=150, unique=True, null=False, blank=False)
-    first_name = models.CharField(_("first_name"),max_length=150, blank=True, null= True)
-    last_name = models.CharField(_("last_name"), max_length=150, blank=True, null= True)
-
-    phone = models.CharField(_("Phone"), max_length=10, validators=[phone_regex], blank= True )
-    shipping_info = models.OneToOneField(
-        'ShippingInfo', verbose_name=_("Shipping Info"), on_delete=models.PROTECT
-        , blank=True, null=True
-    )
-    wishlist = models.OneToOneField(
-        WishList, verbose_name=_("Wishlist"), related_name='user', on_delete=models.PROTECT,
-        blank=True
-    )
-
-    objects = CustomAccountManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['user_name']
-
-    def get_full_name(self):
-        return self.first_name
-
-    def get_short_name(self):
-        return self.first_name
- 
-
-    def __str__(self):
-         return str(self.user_name)   
-
-
-    def save(self, *args, **kwargs):
-        if not hasattr(self, 'wishlist'):
-            self.wishlist = WishList.objects.create()
-        super().save(*args, **kwargs)
-
-
-# class Client(User):
+# class Client(AbstractBaseUser, PermissionsMixin):
 
 #     phone_regex = RegexValidator(
 #         regex=r'^\d{10}$',
 #         message="Phone number must be exactly 10 digits."
 #     )
     
-#     class Meta(User.Meta):
-#         verbose_name = _("Client")
-#         verbose_name_plural = _("Clients")
+#     # class Meta(User.Meta):
+#     #     verbose_name = _("Client")
+#     #     verbose_name_plural = _("Clients")
 
-
+      
+#     email = models.EmailField(_('email address'), unique=True, null = False , blank = False , default='')
+#     user_name = models.CharField(max_length=150, unique=True, null=False, blank=False)
+#     first_name = models.CharField(max_length=150, blank=True, null= True)
 #     phone = models.CharField(_("Phone"), max_length=10, validators=[phone_regex], blank= True )
 #     shipping_info = models.OneToOneField(
 #         'ShippingInfo', verbose_name=_("Shipping Info"), on_delete=models.PROTECT
@@ -121,7 +76,14 @@ class Client(User):
 #         blank=True
 #     )
 
+#     objects = CustomAccountManager()
+
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = ['user_name', 'first_name']
+
     
+
+
 #     def get_full_name(self):
 #         return self.first_name
 
@@ -139,6 +101,47 @@ class Client(User):
 #         super().save(*args, **kwargs)
 
 
+class Client(User):
+
+    phone_regex = RegexValidator(
+        regex=r'^\d{10}$',
+        message="Phone number must be exactly 10 digits."
+    )
+    
+    class Meta(User.Meta):
+        verbose_name = _("Client")
+        verbose_name_plural = _("Clients")
+
+
+    phone = models.CharField(_("Phone"), max_length=10, validators=[phone_regex], blank= True )
+    shipping_info = models.OneToOneField(
+        'ShippingInfo', verbose_name=_("Shipping Info"), on_delete=models.PROTECT
+        , blank=True, null=True
+    )
+    wishlist = models.OneToOneField(
+        WishList, verbose_name=_("Wishlist"), related_name='user', on_delete=models.PROTECT,
+        blank=True
+    )
+
+    
+
+    def get_full_name(self):
+        return self.first_name
+
+    def get_short_name(self):
+        return self.first_name
+ 
+
+    def __str__(self):
+         return str(self.username)   
+
+
+    def save(self, *args, **kwargs):
+        if not hasattr(self, 'wishlist'):
+            self.wishlist = WishList.objects.create()
+        super().save(*args, **kwargs)
+
+
 class Category(models.Model):
 
     class Meta(AbstractBaseUser.Meta):
@@ -149,7 +152,6 @@ class Category(models.Model):
 
     def __str__(self):
             return self.name
-    
 
 
 class Tag(models.Model):
@@ -160,7 +162,6 @@ class Tag(models.Model):
 
     
 class Book(models.Model):
-
     title = models.CharField(_("Title "), max_length=100 ,blank=False) 
     author = models.CharField(_("Author "), max_length=100, default="", blank=False)
     editor = models.CharField(_("Editor "), max_length=100, default="", blank=True)
@@ -286,9 +287,7 @@ class Post(models.Model):
             "-published_at", "title"
         ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL , verbose_name=_("User"), null= True, on_delete=models.SET_NULL, related_name="posts")
-    # user = models.ForeignKey(User, verbose_name=_("User"), null= True, on_delete=models.SET_NULL, related_name="posts")
-
+    user = models.ForeignKey(User , verbose_name=_("User"), null= True, on_delete=models.SET_NULL, related_name="posts")
     title = models.CharField(_("Title "), max_length=256, blank=False)
     content = models.TextField(_("Content"), blank = True)
     categories = models.ManyToManyField(Category, verbose_name=("Categories"), related_name="posts", blank=True)
@@ -301,7 +300,7 @@ class Post(models.Model):
         return f"{self.title}"
 
     def publish(self):
-        self.published_at = timezone.now() # type: ignore
+        self.published_at = timezone.now()
         self.save()
 
     def unpublish(self):
